@@ -1,0 +1,33 @@
+Subject: CCPA {{ADDITIONAL_LAW}} Data Deletion and Opt-Out Request — {{FULL_NAME}}
+
+To Whom It May Concern:
+
+I am writing to exercise my rights under the California Consumer Privacy Act (CCPA, Cal. Civ. Code § 1798.100 et seq.){{ADDITIONAL_LAW_CITATION}} to:
+
+1. Opt out of the sale or sharing of my personal information (CCPA § 1798.120{{ADDITIONAL_OPTOUT_CITE}})
+2. Request deletion of all personal information you have collected about me (CCPA § 1798.105{{ADDITIONAL_DELETE_CITE}})
+3. Opt out of targeted advertising and profiling based on my personal information{{ADDITIONAL_TARGETING_CITE}}
+
+My identifying information:
+
+Full Legal Name: {{FULL_NAME}}
+Other Names/Aliases: {{ALIASES}}
+Current Address: {{CURRENT_ADDRESS}}
+{{PREVIOUS_ADDRESSES_BLOCK}}
+Email Address(es): {{EMAILS}}
+Phone Number(s): {{PHONES}}
+
+{{BROKER_SPECIFIC_PARAGRAPH}}
+
+Please delete all records associated with any of the above identifiers, including but not limited to: name, addresses, phone numbers, email addresses, social media profiles, relatives' information, and any derived or inferred data.
+
+{{FAMILY_DISCLAIMER}}
+
+Under the CCPA, you are required to respond to this request within 45 days (with one permitted 45-day extension).{{ADDITIONAL_DEADLINE}} Please confirm in writing when deletion is complete. If you deny any part of this request, please provide a specific legal basis for the denial.
+
+If you require identity verification, please let me know what you need and I will provide it promptly. I request that any verification process not be unduly burdensome as prohibited under the statute.
+
+Sincerely,
+{{FULL_NAME}}
+{{PRIMARY_EMAIL}}
+{{PRIMARY_PHONE}}
