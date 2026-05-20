@@ -39,17 +39,25 @@ Collect the following in a conversational way (you can ask multiple related fiel
 **Required:**
 - Full legal name
 - Other names / aliases / maiden names / nicknames they may be listed under
+- Date of birth (many brokers use DOB to match records and some opt-out forms require it)
 - Current address (street, city, state, ZIP)
 
 **Important:**
 - Previous addresses (especially across state lines — brokers keep historical records)
-- Email address(es)
-- Phone number(s) (current and old)
-
-**Optional but helpful:**
+- Email address(es) — all of them, including old/unused ones
+- Phone number(s) — current and old (brokers keep historical phone records)
 - Family members with similar names (to avoid false matches — this is critical for common names or family naming patterns like father/son with same first name)
-- Approximate age or date of birth (helps disambiguate)
-- Employer (to find B2B data brokers like ZoomInfo)
+
+**OSINT-relevant identifiers (ask for all of these):**
+- Social media handles: Instagram, Twitter/X, Facebook, LinkedIn, TikTok, Reddit, YouTube, etc.
+- Usernames commonly used across sites (gaming tags, forum handles, etc.)
+- Current and previous employers + job titles (for B2B brokers like ZoomInfo, RocketReach, Apollo)
+- Vehicles owned (make, model, year — used by auto data brokers and Carfax-adjacent services)
+- Property ownership history (helps identify property data brokers)
+- Professional licenses or certifications (nursing, real estate, etc. — these are public record)
+- Education history (schools attended — some brokers cross-reference alumni records)
+- Known data breaches the user has been part of (check haveibeenpwned.com)
+- Any domains registered in their name (WHOIS records are a major OSINT source)
 
 Store all collected information as a structured profile. Create a working file at `./databrokersbegone_profile.json` to persist the profile during the session.
 
@@ -58,13 +66,32 @@ Example profile structure:
 {
   "full_name": "Jane Marie Smith",
   "aliases": ["Jane M Smith", "J Smith", "Jane Doe"],
+  "date_of_birth": "1989-03-15",
   "current_address": "123 Main St, Portland, OR 97201",
   "previous_addresses": ["456 Oak Ave, Seattle, WA 98101"],
-  "emails": ["jane@example.com"],
+  "emails": ["jane@example.com", "jsmith_old@yahoo.com"],
   "phones": ["5035551234"],
   "old_phones": ["2065559876"],
-  "employer": "Acme Corp",
-  "age_or_dob": "35",
+  "social_media": {
+    "instagram": "@janesmith",
+    "twitter": "@janemsmith",
+    "linkedin": "linkedin.com/in/janemsmith",
+    "facebook": "Jane Marie Smith",
+    "tiktok": null,
+    "reddit": "u/jmsmith89",
+    "youtube": null
+  },
+  "usernames": ["jmsmith89", "janesmith_pdx"],
+  "employers": [
+    {"name": "Acme Corp", "title": "Software Engineer", "current": true},
+    {"name": "Widgets Inc", "title": "Junior Dev", "current": false}
+  ],
+  "vehicles": ["2020 Toyota Camry"],
+  "properties_owned": ["123 Main St, Portland, OR"],
+  "professional_licenses": [],
+  "education": ["University of Oregon, BS Computer Science 2011"],
+  "domains_registered": ["janemsmith.com"],
+  "known_breaches": ["LinkedIn 2012", "Adobe 2013"],
   "family_exclusions": [
     {"name": "John Smith", "relationship": "father", "notes": "Same last name, lives in Portland too"}
   ],
