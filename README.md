@@ -13,17 +13,33 @@ Covers 50+ data brokers across people-search sites, commercial data brokers, B2B
 
 ## Installation
 
-### Option 1: Copy to Personal Skills (recommended)
+### Option 1: Symlink (recommended — easiest to update)
+
+Clone the repo anywhere you like, then symlink it into your Claude Code skills directory:
 
 ```bash
-git clone https://github.com/zachsis/databrokersbegone.git
-cp -r databrokersbegone ~/.claude/skills/databrokersbegone
+git clone https://github.com/zachsis/databrokersbegone.git ~/repos/databrokersbegone
+ln -s ~/repos/databrokersbegone ~/.claude/skills/databrokersbegone
 ```
 
-### Option 2: Clone into Personal Skills directly
+To update later, just pull:
+
+```bash
+cd ~/repos/databrokersbegone && git pull
+```
+
+The symlink means Claude Code picks up changes immediately — no copying needed.
+
+### Option 2: Clone directly into skills
 
 ```bash
 git clone https://github.com/zachsis/databrokersbegone.git ~/.claude/skills/databrokersbegone
+```
+
+To update:
+
+```bash
+cd ~/.claude/skills/databrokersbegone && git pull
 ```
 
 ### Option 3: Project-level (for a specific repo)
