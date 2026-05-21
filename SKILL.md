@@ -18,6 +18,9 @@ allowed-tools:
   - TaskCreate
   - TaskUpdate
   - TaskList
+  - mcp__claude_ai_Gmail__authenticate
+  - mcp__claude_ai_Gmail__complete_authentication
+  - mcp__claude_ai_Gmail__*
 ---
 
 <command-name>databrokersbegone</command-name>
@@ -32,36 +35,80 @@ You are running the DataBrokersBegone skill. This is a multi-phase interactive w
 
 ## Phase 1: Collect Personal Information
 
-Use AskUserQuestion to gather the user's information. If a name was passed as `$ARGUMENTS`, greet them by name and start collecting details.
+Gather the user's information through a series of AskUserQuestion calls. If a name was passed as `$ARGUMENTS`, greet them by name.
 
-Collect the following in a conversational way (you can ask multiple related fields at once, but don't dump all questions in one wall of text):
+**CRITICAL WORKFLOW RULE:** You MUST collect information in sequential steps. After each AskUserQuestion, STOP and WAIT for the user's response before asking the next question. Do NOT call multiple AskUserQuestion tools in parallel. Do NOT list questions as plain text output — every question MUST be an AskUserQuestion call so the user gets an actual input prompt to type their answer.
 
-**Required:**
-- Full legal name
-- Other names / aliases / maiden names / nicknames they may be listed under
-- Date of birth (many brokers use DOB to match records and some opt-out forms require it)
-- Current address (street, city, state, ZIP)
+### Step 1 — Identity basics
+Use AskUserQuestion to ask:
+> "Let's build your profile so I can find which data brokers have your information. To start, I need your **identity basics**:
+>
+> 1. Full legal name
+> 2. Other names you go by or have been listed under (aliases, maiden names, nicknames, initials)
+> 3. Date of birth (MM/DD/YYYY)"
 
-**Important:**
-- Previous addresses (especially across state lines — brokers keep historical records)
-- Email address(es) — all of them, including old/unused ones
-- Phone number(s) — current and old (brokers keep historical phone records)
-- Family members with similar names (to avoid false matches — this is critical for common names or family naming patterns like father/son with same first name)
+WAIT for response. Record the answers.
 
-**OSINT-relevant identifiers (ask for all of these):**
-- Social media handles: Instagram, Twitter/X, Facebook, LinkedIn, TikTok, Reddit, YouTube, etc.
-- Usernames commonly used across sites (gaming tags, forum handles, etc.)
-- Current and previous employers + job titles (for B2B brokers like ZoomInfo, RocketReach, Apollo)
-- Vehicles owned (make, model, year — used by auto data brokers and Carfax-adjacent services)
-- Property ownership history (helps identify property data brokers)
-- Professional licenses or certifications (nursing, real estate, etc. — these are public record)
-- Education history (schools attended — some brokers cross-reference alumni records)
-- Known data breaches the user has been part of (check haveibeenpwned.com)
-- Any domains registered in their name (WHOIS records are a major OSINT source)
+### Step 2 — Addresses
+Use AskUserQuestion to ask:
+> "Now I need your **addresses** — data brokers keep historical records, so include everywhere you've lived:
+>
+> 1. Current address (street, city, state, ZIP)
+> 2. All previous addresses (especially across state lines)"
 
-Store all collected information as a structured profile. Create a working file at `./databrokersbegone_profile.json` to persist the profile during the session.
+WAIT for response. Record the answers.
 
-Example profile structure:
+### Step 3 — Contact info
+Use AskUserQuestion to ask:
+> "Next, your **contact information** — include old/unused ones too, brokers keep everything:
+>
+> 1. Email address(es) — all of them, current and old
+> 2. Phone number(s) — current and old"
+
+WAIT for response. Record the answers.
+
+### Step 4 — Social media & online presence
+Use AskUserQuestion to ask:
+> "Now your **online presence** — these are all OSINT vectors that data brokers use:
+>
+> 1. Social media handles (Instagram, Twitter/X, Facebook, LinkedIn, TikTok, Reddit, YouTube, etc.)
+> 2. Usernames you commonly use across sites (gaming tags, forum handles, etc.)
+> 3. Any domains registered in your name (WHOIS records are a major source)
+> 4. Any data breaches you know you've been part of (check haveibeenpwned.com if unsure)
+>
+> List whatever applies — skip what doesn't."
+
+WAIT for response. Record the answers.
+
+### Step 5 — Professional & asset info
+Use AskUserQuestion to ask:
+> "Almost done. Your **professional and asset information** — B2B brokers like ZoomInfo sell work profiles, and property/vehicle data brokers exist too:
+>
+> 1. Current and previous employers + job titles
+> 2. Professional licenses or certifications (nursing, real estate, etc. — these are public record)
+> 3. Education history (schools attended)
+> 4. Vehicles owned (make, model, year)
+> 5. Properties you own or have owned
+>
+> List whatever applies — skip what doesn't."
+
+WAIT for response. Record the answers.
+
+### Step 6 — Family disambiguation
+Use AskUserQuestion to ask:
+> "Last question: do any **family members share your name** or a very similar name? This is critical — data brokers constantly mix up family members (e.g., father/son with the same first and last name).
+>
+> For each person, tell me their full name, relationship to you, and where they live so I can exclude their results from yours."
+
+WAIT for response. Record the answers.
+
+### Step 7 — Confirm profile
+After all steps are complete, compile everything into a JSON profile and save it to `./databrokersbegone_profile.json`. Then show the user a formatted summary of their complete profile and use AskUserQuestion to ask:
+> "Here's your complete profile. Does everything look correct? Anything to add or change?"
+
+WAIT for confirmation before moving to Phase 2.
+
+### Profile JSON structure
 ```json
 {
   "full_name": "Jane Marie Smith",
@@ -98,8 +145,6 @@ Example profile structure:
   "state_of_residence": "OR"
 }
 ```
-
-After collecting info, show the user a summary and ask them to confirm it's correct before proceeding.
 
 ---
 
@@ -220,7 +265,22 @@ Each email MUST include:
 
 Use the email template from `${CLAUDE_SKILL_DIR}/templates/email_template.txt` as the base.
 
-### 3. Summary Report
+### 3. Send Emails via Gmail (Optional)
+
+After generating the email files, check if Gmail MCP tools are available (look for `mcp__claude_ai_Gmail__` tools). If they are:
+
+1. Use AskUserQuestion to ask: "I've generated opt-out emails for [N] brokers. Would you like me to send them directly from your Gmail account, or would you prefer to send them manually from the generated files?"
+2. WAIT for response.
+3. If the user wants to send directly:
+   - If Gmail is not yet authenticated, call `mcp__claude_ai_Gmail__authenticate` and guide them through the OAuth flow
+   - Before sending, show the user a summary table of all emails: recipient, subject, broker name
+   - Use AskUserQuestion to ask: "Here are the [N] emails I'm about to send. Confirm to send all, or tell me which ones to skip."
+   - WAIT for confirmation.
+   - Send each confirmed email using the Gmail MCP send tool
+   - Report success/failure for each email sent
+4. If Gmail MCP is not available, inform the user the emails have been saved to `./databrokersbegone_emails/` and they can copy-paste them manually.
+
+### 4. Summary Report
 Save a final report to `./databrokersbegone_report.md` with:
 - Total brokers identified
 - Confirmed vs skipped

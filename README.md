@@ -4,10 +4,11 @@ A [Claude Code](https://claude.ai/code) skill that helps you find data brokers s
 
 ## What It Does
 
-1. **Collects your information** interactively (name, addresses, phone, email, family members to exclude)
+1. **Collects your information** interactively through a step-by-step questionnaire (name, DOB, addresses, phone, email, social media, employers, and more)
 2. **Searches the web** using parallel agents to find which data brokers have your data
 3. **Asks you to verify** which results are actually you (handles common name collisions, family members, etc.)
 4. **Generates personalized opt-out requests** — pre-filled emails and a checklist of web forms to submit
+5. **Sends opt-out emails directly** from your Gmail account (optional, requires Gmail MCP)
 
 Covers 50+ data brokers across people-search sites, commercial data brokers, B2B platforms, and telecom databases.
 
@@ -50,6 +51,28 @@ mkdir -p .claude/skills
 git clone https://github.com/zachsis/databrokersbegone.git .claude/skills/databrokersbegone
 ```
 
+## Requirements
+
+### Required
+
+- [Claude Code](https://claude.ai/code) CLI, desktop app, or IDE extension
+- **WebSearch** permission enabled (Claude Code will prompt you on first use)
+- Internet access for data broker searches
+
+### Optional: Gmail MCP (for sending opt-out emails directly)
+
+If you want Claude to send the opt-out emails directly from your Gmail account instead of just generating text files, you need the **Gmail MCP server** connected.
+
+**Setup:**
+
+1. In Claude Code, run `/mcp` and select **"claude.ai Gmail"**
+2. Complete the OAuth flow in your browser to authorize access to your Gmail account
+3. When running the skill, Claude will ask whether you want to send emails directly or just generate files
+
+**What it does:** Sends the pre-filled CCPA/OCPA opt-out emails to each data broker's privacy address directly from your Gmail. You'll be asked to confirm before any email is sent.
+
+**Without Gmail MCP:** The skill still works — it generates `.txt` files in `./databrokersbegone_emails/` that you can copy-paste into your email client manually.
+
 ## Usage
 
 In Claude Code, run:
@@ -64,7 +87,15 @@ Or with a name:
 /databrokersbegone Jane Smith
 ```
 
-The skill will walk you through the process interactively.
+The skill walks you through a step-by-step questionnaire:
+
+1. Identity basics (name, aliases, DOB)
+2. Addresses (current + previous)
+3. Contact info (emails, phones — current and old)
+4. Online presence (social media, usernames, domains, known breaches)
+5. Professional & assets (employers, licenses, education, vehicles, property)
+6. Family disambiguation (relatives with similar names to exclude)
+7. Profile confirmation before searching
 
 ## What Gets Generated
 
@@ -76,12 +107,6 @@ After running, you'll have these files in your current directory:
 | `databrokersbegone_checklist.md` | Phased action plan with all opt-out steps |
 | `databrokersbegone_emails/*.txt` | Pre-filled opt-out emails ready to send |
 | `databrokersbegone_report.md` | Summary report with follow-up dates |
-
-## Requirements
-
-- [Claude Code](https://claude.ai/code) CLI, desktop app, or IDE extension
-- WebSearch permission enabled (Claude Code will prompt you)
-- Internet access for data broker searches
 
 ## Legal Coverage
 
